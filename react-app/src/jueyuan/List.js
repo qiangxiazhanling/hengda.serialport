@@ -6,19 +6,18 @@ const List = () => {
 
   const [list, setList] = React.useState([])
 
-  const [flg, setFlg] = React.useState(false)
+  const [flg, setFlg] = React.useState(true)
 
   socket
-    .off('juyuanList')
-    .on('juyuanList', data => {
+    .off('comList')
+    .on('comList', data => {
       setFlg(false)
-      console.info(data)
       setList(data)
     })
 
   React.useEffect(() => {
     if (flg) {
-      socket.emit('juyuanList','')
+      socket.emit('comList','')
     }
   }, [flg])
 
@@ -40,13 +39,13 @@ const List = () => {
               flg && (
                 <>
                   <i className={`fa fa-spin fa-refresh  fa-fw`} aria-hidden="true"></i>
-                  正在扫描设备,请勿操作页面...
+                  正在扫描串口,请勿操作页面...
                 </>
               )
             }
           </div>
           <div className="btn-group btn-group-sm pull-right">
-            <button className="btn btn-success rounded-0" disabled={flg} onClick={refreshList}>点击此处开始扫描设备</button>
+            <button className="btn btn-success rounded-0" disabled={flg} onClick={refreshList}>点击此处开始串口设备</button>
           </div>
         </div>
       </footer>

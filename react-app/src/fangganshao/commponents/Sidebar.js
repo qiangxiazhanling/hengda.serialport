@@ -6,7 +6,7 @@ const Sidebar = props => (
       <ul className="nav flex-column mt-4">
         <li className="nav-menu">
           <a
-            href={`#防干烧/设备设置/${encodeURIComponent(props.comName)}/${props.id}/`}
+            href={`#防干烧/设备设置/${encodeURIComponent(props.comName)}/`}
             className={`nav-link ${props.category==='edit'?'nav-menu-active':'nav-menu-link'}`}
           >
             <i className="fa fa-fw fa-cogs" aria-hidden="true"></i>
@@ -15,7 +15,7 @@ const Sidebar = props => (
         </li >
         <li className="nav-menu">
           <a
-            href={`#防干烧/茶炉设置/${encodeURIComponent(props.comName)}/${props.id}/`}
+            href={`#防干烧/茶炉设置/${encodeURIComponent(props.comName)}/`}
             className={`nav-link ${props.category==='testEdit'?'nav-menu-active':'nav-menu-link'}`}
           >
             <i className="fa fa-fw fa-thermometer-full" aria-hidden="true"></i>
@@ -24,7 +24,7 @@ const Sidebar = props => (
         </li >
         <li className="nav-menu border-bottom">
           <a
-            href={`#防干烧/数据上传/${encodeURIComponent(props.comName)}/${props.id}/`}
+            href={`#防干烧/数据上传/${encodeURIComponent(props.comName)}/`}
             className={`nav-link ${props.category==='upload'?'nav-menu-active':'nav-menu-link'}`}
           >
             <i className="fa fa-fw fa-cloud-upload" aria-hidden="true"></i>

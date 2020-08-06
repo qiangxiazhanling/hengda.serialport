@@ -6,37 +6,19 @@ const List = () => {
 
   const [list, setList] = React.useState([])
 
-  const [flg, setFlg] = React.useState(false)
+  const [flg, setFlg] = React.useState(true)
 
 
   socket
-    .off('command')
-    .on('command', data => {
-      const res = JSON.parse(data)
-      console.info(data)
-      if (flg && res.fun === 'fangganshaoList' && res.status === 'run') {
-        setList(p => {
-          p.push(res.content)
-          return p
-        })
-      }
-      if (flg && res.fun === 'fangganshaoList' && res.status === 'end') {
-        setFlg(false)
-      }
-      if (flg && res.status === 'err') {
-        window.alert('无法连接设备，请重新连接')
-        window.location = '#/防干烧/设备列表'
-      }
+    .off('comList')
+    .on('comList', data => {
+      setFlg(false)
+      setList(data)
     })
 
   React.useEffect(() => {
     if (flg) {
-      socket.emit('command', JSON.stringify({
-        fun: 'fangganshaoList',
-        param: {
-          type: 'teapot'
-        }
-      }))
+      socket.emit('comList', '')
     }
   }, [flg])
 
@@ -48,8 +30,8 @@ const List = () => {
   return (
     <>
       <div className="card-body">
-        {list && list.filter(item => item.equipmentId)
-        .map((item, inx) => (<EquipmentItem key={inx} href={'#防干烧/设备设置'}  {...item} />))}
+        {list && list
+          .map((item, inx) => (<EquipmentItem key={inx} href={'#防干烧/设备设置'}  comName={item} />))}
       </div>
       <footer className="fixed-bottom">
         <div className="row bg-dark text-white px-2">

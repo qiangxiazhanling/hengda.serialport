@@ -1,17 +1,22 @@
 import sys
 import json
 import serial
+import logging
 import serial.tools.list_ports
+import webbrowser
 from flask import Flask
 from flask_socketio import SocketIO, emit
-from src import jyb
 
-
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 juyuan_bps=57600
+print('恒达设备助手服务已启动')
+webbrowser.open("http://127.0.0.1:5000/")
+
 if __name__ == '__main__':
   socketio.run(app)
 
@@ -23,13 +28,13 @@ def get():
 def connect():
   print('connect')
 
-@socketio.on('juyuanList', namespace='/')
+@socketio.on('comList', namespace='/')
 def juyuanList(message):
   port_list = list(serial.tools.list_ports.comports())
   comName = []
   for i in range(0, len(port_list)):
     comName.append(''+port_list[i].device)
-  emit('juyuanList', comName)
+  emit('comList', comName)
 
 @socketio.on('jueyuanId4', namespace='/')
 def jueyuanId4(message):

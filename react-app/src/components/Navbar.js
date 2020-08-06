@@ -12,9 +12,9 @@ const Navbar = props => {
             <a className={`nav-link ${props.category === 'jueyuan' ? 'active' : ''}`} href="#绝缘/设备列表" >
               绝缘表
             </a>
-            <a className={`nav-link ${props.category === 'chegou' ? 'active' : ''}`} href="#车钩/上传" >
+            {/* <a className={`nav-link ${props.category === 'chegou' ? 'active' : ''}`} href="#车钩/上传" >
               车钩仪
-            </a>
+            </a> */}
             <a className={`nav-link ${props.category === 'fangganshao' ? 'active' : ''}`} href="#防干烧/设备列表" >
               防干烧
             </a>
