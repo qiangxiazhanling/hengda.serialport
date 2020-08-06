@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
+import moment from 'moment'
 import Sidebar from './components/Sidebar'
 import Title from '../components/Title'
 import socket from '../Socket'
 import config from '../config'
-import moment from 'moment'
+import commonUtil from '../commonUtil'
 
 const Edit = props => {
 
@@ -39,23 +40,6 @@ const Edit = props => {
             }
           })
       }
-      //const res = JSON.parse(data)
-      //if (load && res.fun === 'jueyuanWifi' && res.status === 'end') {
-      //  setLoad(false)
-      //}
-      //console.info(load)
-      //if (load && res.fun === 'jueyuanId' && res.status === 'end') {
-      //  setDeviceId(document.getElementById('deviceId').value)
-      //  socket.emit('jueyuanId4', decodeURIComponent(props.match.params.comName))
-      //}
-      //if (load && res.fun === 'jueyuanId4' && res.status === 'end') {
-      //  setLoad(false)
-      //  setId4(res.content)
-      //}
-      //if (load && res.status === 'err') {
-      //  window.alert('无法连接设备，请重新连接')
-      //  window.location = '#'
-      //}
     })
 
   socket
@@ -66,11 +50,21 @@ const Edit = props => {
       } else {
         alert('操作成功')
       }
+      setLoad(false)
+    })
+
+  socket
+    .off('writeJueyuanWifi')
+    .on('writeJueyuanWifi', data => {
+      if (data === 'err') {
+        alert('连接失败!')
+      } else {
+        alert('操作成功')
+      }
+      setLoad(false)
     })
 
   useEffect(() => {
-    document.getElementById('deviceId').value = props.match.params.id
-    setDeviceId(props.match.params.id)
     const errFun = () => {
       setServerFlg(false)
       window.alert(`无法连接服务器!\n您的设置将无法同步到服务器\n请在设置后联系管理员手动录入设备信息`)
@@ -103,11 +97,11 @@ const Edit = props => {
       for (let i = 0; i < inx; i++) {
         hexId = '0' + hexId
       }
-      socket.emit('writeJueyuanId', JSON.stringify({
+      socket.emit('writeJueyuanId', {
         hex: config.order['insulation'].set_id.replace(/{NID4}/, hexId),
         comName: decodeURIComponent(props.match.params.comName),
         len: 64
-      }))
+      })
     }
     setLoad(true)
     setLoadText('正在写入设备编号(请勿操作页面)...')
@@ -140,18 +134,34 @@ const Edit = props => {
   const writeWifi = () => {
     setLoad(true)
     setLoadText('正在写入网络设置(请勿操作页面)...')
-    socket.emit('command', JSON.stringify({
-      fun: 'jueyuanWifi',
-      param: {
-        type: 'insulation',
-        id4: id4,
-        comName: decodeURIComponent(props.match.params.comName),
-        name: document.getElementById('wifi_name').value,
-        password: document.getElementById('wifi_password').value,
-        ip_addr: document.getElementById('service_path').value,
-        port: document.getElementById('service_port').value
-      }
-    }))
+    const data = {
+      name: document.getElementById('wifi_name').value,
+      password: document.getElementById('wifi_password').value,
+      ip_addr: document.getElementById('service_path').value,
+      port: document.getElementById('service_port').value
+    } 
+    let t = []
+    t.push(config.order['insulation'].header)
+    id4.forEach(it => t.push(it))
+    let t1 = []
+    t1.push('A2')
+    let szWifi = `${data.name},${data.password}`
+    let szIP = `${data.ip_addr},${data.port}`
+    t1.push(commonUtil.hexFillZero(szWifi.length.toString(16)))
+    t1.push(commonUtil.hexFillZero(szIP.length.toString(16)))
+    szWifi.split('').forEach(it => {
+      t1.push(commonUtil.hexFillZero(it.charCodeAt().toString(16)))
+    })
+    szIP.split('').forEach(it => {
+      t1.push(commonUtil.hexFillZero(it.charCodeAt().toString(16)))
+    })
+    t.push(commonUtil.hexFillZero(t1.length.toString(16)))
+    console.info(t.concat(t1).join(''))
+    socket.emit('writeJueyuanWifi', {
+      hex:  t.concat(t1).join(''),
+      comName: decodeURIComponent(props.match.params.comName),
+      len: 64
+    })
   }
 
   return (

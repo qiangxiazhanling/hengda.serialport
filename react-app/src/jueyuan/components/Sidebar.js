@@ -6,7 +6,7 @@ const Sidebar = props => (
       <ul className="nav flex-column mt-4">
         <li className="nav-menu">
           <a
-            href={`#绝缘/设备设置/${encodeURIComponent(props.comName)}/${props.id}/`}
+            href={`#绝缘/设备设置/${encodeURIComponent(props.comName)}/`}
             onClick={props.close}
             className={`nav-link ${props.category==='edit'?'nav-menu-active':'nav-menu-link'}`}
           >
@@ -16,7 +16,7 @@ const Sidebar = props => (
         </li >
         <li className="nav-menu">
           <a
-            href={`#绝缘/测试配置/${encodeURIComponent(props.comName)}/${props.id}/`}
+            href={`#绝缘/测试配置/${encodeURIComponent(props.comName)}/`}
             onClick={props.close}
             className={`nav-link ${props.category==='test_edit'?'nav-menu-active':'nav-menu-link'} `}
           >
@@ -26,7 +26,7 @@ const Sidebar = props => (
         </li>
         <li className="nav-menu border-bottom">
           <a
-            href={`#绝缘/数据上传/${encodeURIComponent(props.comName)}/${props.id}/`}
+            href={`#绝缘/数据上传/${encodeURIComponent(props.comName)}/`}
             onClick={props.close}
             className={`nav-link ${props.category==='upload'?'nav-menu-active':'nav-menu-link'}`}
           >

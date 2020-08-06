@@ -13,6 +13,7 @@
   "dependencies": {
     "bootstrap": "^4.5.1",
     "font-awesome": "^4.7.0",
+    "iconv-lite": "^0.6.2",
     "moment": "^2.27.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

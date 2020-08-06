@@ -3,7 +3,9 @@ import React from 'react'
 import Title from '../components/Title'
 import Detail from './components/Detail'
 import Sidebar from './components/Sidebar'
+import config from '../config'
 import socket from '../Socket'
+import commonUtil from '../commonUtil'
 
 
 const insertOriginal = body => new Promise((resolve, reject) => {
@@ -54,66 +56,107 @@ const Upload = props => {
 
 
   socket
-    .off('command')
-    .on('command', data => {
-      const res = JSON.parse(data)
-      if (load && res.status === 'end') {
-        if (res.fun === 'jueyuanId4') {
-          setLoad(false)
-          // setId4(res.content)
-        }
-        if (res.fun === 'clearDevice') {
-          setLoad(false)
-        }
-      }
-
-      if (load && res.status === 'run') {
-        if (res.fun === 'readJueyuanData') {
-          setList(p => {
-            if (res.content.attribute !== -1) {
-              p.push(res.content.attribute)
+    .off('jueyuanReadData')
+    .on('jueyuanReadData', data => {
+      if (data === 'err') {
+        setLoad(false)
+        alert('无法连接设备!')
+      } else {
+        const attribute = commonUtil.juyuandata(data).attribute
+        if (attribute.deviceId === 99999999 && attribute.personnel === '试验人员' && 
+            attribute.team === '试验班组' && attribute.date === '2000-01-01 01:00') {
+            console.info(attribute.testType) 
+            if (attribute.testType === 'DC600V') {
+              setInx(85)
+              setPercentage(85 / 511 * 100)
+            } else if (attribute.testType === 'AC380V四线') {
+              setPercentage(170 / 511 * 100)
+              setInx(170)
+            } else if (attribute.testType === 'AC380V五线') {
+              setPercentage(256 / 511 * 100)
+              setInx(256)
+            } else if (attribute.testType === 'DC110V') {
+              setPercentage(384 / 511 * 100)
+              setInx(384)
+            } else {
+              setPercentage(100)
+              setLoad(false)
             }
+        } else {
+          setPercentage(inx / 511 * 100)
+          setList(p=> {
+            p.push(commonUtil.juyuandata(data).attribute)
             return p
-          })
-          setOriginal(p => {
-            if (res.content.original !== -1) {
-              p.push({
-                data: res.content.original,
-                datime: res.content.datime
-              })
-            }
-            return p
-          })
-          setPercentage(res.content.inx / 511 * 100)
-          if (res.content.inx === 511) {
+          }) 
+          if (inx === 511) {
             setLoad(false)
           } else {
-            console.info('run')
-            setInx(res.content.inx + 1)
+            setInx(inx + 1)
           }
         }
       }
 
-      if (load && res.status === 'err') {
-        window.alert('无法连接设备，请重新连接')
-        window.location = '#'
-      }
+
+      // if (load && res.status === 'end') {
+      //   if (res.fun === 'jueyuanId4') {
+      //     setLoad(false)
+      //     // setId4(res.content)
+      //   }
+      //   if (res.fun === 'clearDevice') {
+      //     setLoad(false)
+      //   }
+      // }
+
+      // if (load && res.status === 'run') {
+      //   if (res.fun === 'readJueyuanData') {
+      //     // setList(p => {
+      //     //   if (res.content.attribute !== -1) {
+      //     //     p.push(res.content.attribute)
+      //     //   }
+      //     //   return p
+      //     // })
+      //     // setOriginal(p => {
+      //     //   if (res.content.original !== -1) {
+      //     //     p.push({
+      //     //       data: res.content.original,
+      //     //       datime: res.content.datime
+      //     //     })
+      //     //   }
+      //     //   return p
+      //     // })
+
+      //   }
+      // }
+
+      // if (load && res.status === 'err') {
+      //   window.alert('无法连接设备，请重新连接')
+      //   window.location = '#'
+      // }
     })
 
 
+  
+
   React.useEffect(() => {
-    if (inx !== -1) {
-      setTimeout(() => {
-        socket.emit('command', JSON.stringify({
-          fun: 'readJueyuanData',
-          param: {
-            comName: decodeURIComponent(props.match.params.comName),
-            inx: inx
-          }
-        }))
-      },1000)
+    if (inx !== -1 && load) {
+      // setTimeout(() => {
+      //   socket.emit('command', JSON.stringify({
+      //     fun: 'readJueyuanData',
+      //     param: {
+      //       comName: decodeURIComponent(props.match.params.comName),
+      //       inx: inx
+      //     }
+      //   }))
+      // })
+      const num_16 = inx.toString(16)
+      let str = ''
+      for (let i = 0; i < 4 - num_16.length; i++) str += '0'
+      socket.emit('jueyuanReadData', {
+        comName: decodeURIComponent(props.match.params.comName),
+        hex: config.order['insulation'].get_data.replace(/{NUM}/, str + num_16)
+      })
     }
-  }, [inx, props.match.params.comName])
+  }, [inx, props.match.params.comName, load])
 
   const toDetail = item => {
     setItem(item)
@@ -130,7 +173,6 @@ const Upload = props => {
 
   const stop = () => {
     setLoad(false)
-    setInx(-1)
   }
 
   const upload = () => {
@@ -152,13 +194,11 @@ const Upload = props => {
   const clearDevice = () => {
     setLoad(true)
     setLoadText('正在清除待发数据(请勿操作页面)...')
-    socket.emit('command', JSON.stringify({
-      fun: 'clearDevice',
-      param: {
-        type: 'insulation',
-        comName: decodeURIComponent(props.match.params.comName)
-      }
-    }))
+    socket.emit('command', {
+      hex: config.order['insulation'].clear_data,
+      comName: decodeURIComponent(props.match.params.comName),
+      len: 64
+    })
   }
 
 
