@@ -1,0 +1,5 @@
+venv
+static
+node_modules
+dist
+.cache
