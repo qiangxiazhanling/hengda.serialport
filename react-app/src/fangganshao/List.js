@@ -31,7 +31,7 @@ const List = () => {
     <>
       <div className="card-body">
         {list && list
-          .map((item, inx) => (<EquipmentItem key={inx} href={'#防干烧/设备设置'}  comName={item} />))}
+          .map((item, inx) => (<EquipmentItem key={inx} href={'#防干烧/设备设置'}  {...item} />))}
       </div>
       <footer className="fixed-bottom">
         <div className="row bg-dark text-white px-2">

@@ -9,7 +9,7 @@ import commonUtil from '../commonUtil'
 
 
 const insertOriginal = body => new Promise((resolve, reject) => {
-  fetch(`${window.config.service_url}/api/jueyuan/original/`, {
+  fetch(`${config.service_url}/api/jueyuan/original/`, {
     method: 'post',
     headers: {
       'content-type': 'application/json'
@@ -22,7 +22,7 @@ const insertOriginal = body => new Promise((resolve, reject) => {
 })
 
 const insulationUpload = body => new Promise((resolve, reject) => {
-  fetch(`${window.config.service_url}/api/jueyuan/mod5/`, {
+  fetch(`${config.service_url}/api/jueyuan/mod5/`, {
     method: 'post',
     headers: {
       'content-type': 'application/json'
@@ -64,28 +64,19 @@ const Upload = props => {
       } else {
         const attribute = commonUtil.juyuandata(data).attribute
         if (attribute.deviceId === 99999999 && attribute.personnel === '试验人员' && 
-            attribute.team === '试验班组' && attribute.date === '2000-01-01 01:00') {
-            console.info(attribute.testType) 
-            if (attribute.testType === 'DC600V') {
-              setInx(85)
-              setPercentage(85 / 511 * 100)
-            } else if (attribute.testType === 'AC380V四线') {
-              setPercentage(170 / 511 * 100)
-              setInx(170)
-            } else if (attribute.testType === 'AC380V五线') {
-              setPercentage(256 / 511 * 100)
+            attribute.team === '试验班组' && attribute.date === '2000-01-01 01:00') { 
+            if (inx < 256) {
               setInx(256)
-            } else if (attribute.testType === 'DC110V') {
-              setPercentage(384 / 511 * 100)
-              setInx(384)
+              setPercentage(256 / 511 * 100)
             } else {
               setPercentage(100)
+              setInx(-1)
               setLoad(false)
             }
         } else {
           setPercentage(inx / 511 * 100)
           setList(p=> {
-            p.push(commonUtil.juyuandata(data).attribute)
+            p.push(attribute)
             return p
           }) 
           if (inx === 511) {
@@ -95,43 +86,16 @@ const Upload = props => {
           }
         }
       }
-
-
-      // if (load && res.status === 'end') {
-      //   if (res.fun === 'jueyuanId4') {
-      //     setLoad(false)
-      //     // setId4(res.content)
-      //   }
-      //   if (res.fun === 'clearDevice') {
-      //     setLoad(false)
-      //   }
-      // }
-
-      // if (load && res.status === 'run') {
-      //   if (res.fun === 'readJueyuanData') {
-      //     // setList(p => {
-      //     //   if (res.content.attribute !== -1) {
-      //     //     p.push(res.content.attribute)
-      //     //   }
-      //     //   return p
-      //     // })
-      //     // setOriginal(p => {
-      //     //   if (res.content.original !== -1) {
-      //     //     p.push({
-      //     //       data: res.content.original,
-      //     //       datime: res.content.datime
-      //     //     })
-      //     //   }
-      //     //   return p
-      //     // })
-
-      //   }
-      // }
-
-      // if (load && res.status === 'err') {
-      //   window.alert('无法连接设备，请重新连接')
-      //   window.location = '#'
-      // }
+    })
+    .off('clearDevice')
+    .on('clearDevice', data => {
+      if (data === 'err') {
+        setLoad(false)
+        alert('清除数据失败')
+      } else {
+        setLoad(false)
+        alert('待发数据已清除')
+      }
     })
 
 
@@ -139,15 +103,6 @@ const Upload = props => {
 
   React.useEffect(() => {
     if (inx !== -1 && load) {
-      // setTimeout(() => {
-      //   socket.emit('command', JSON.stringify({
-      //     fun: 'readJueyuanData',
-      //     param: {
-      //       comName: decodeURIComponent(props.match.params.comName),
-      //       inx: inx
-      //     }
-      //   }))
-      // })
       const num_16 = inx.toString(16)
       let str = ''
       for (let i = 0; i < 4 - num_16.length; i++) str += '0'
@@ -180,9 +135,15 @@ const Upload = props => {
     setLoadText('正在上传数据请(请勿操作页面)...')
     insulationUpload(list)
       .then(res => {
-        clearDevice()
         insertOriginal(original)
-          .then(res => { })
+          .then(res => { 
+            if (res.message) {
+              alert(res.message)
+            } else {
+              
+            }
+          })
+        clearDevice()
       })
       .catch(err => {
         setLoad(false)
@@ -194,7 +155,7 @@ const Upload = props => {
   const clearDevice = () => {
     setLoad(true)
     setLoadText('正在清除待发数据(请勿操作页面)...')
-    socket.emit('command', {
+    socket.emit('clearDevice', {
       hex: config.order['insulation'].clear_data,
       comName: decodeURIComponent(props.match.params.comName),
       len: 64

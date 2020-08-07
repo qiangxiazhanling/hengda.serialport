@@ -1,8 +1,10 @@
 import React from 'react'
-
+import moment from 'moment'
 import Sidebar from './commponents/Sidebar'
 import Title from '../components/Title'
 import socket from '../Socket'
+import config from '../config'
+import commonUtil from '../commonUtil'
 
 const Upload = props => {
 
@@ -21,64 +23,67 @@ const Upload = props => {
   const [inx, setInx] = React.useState(-1)
 
   socket
-    .off('command')
-    .on('command', data => {
-      const res = JSON.parse(data)
-      if (load && res.status === 'end') {
-        if (res.fun === 'fangganshaoDataTotal') {
-          // setLoad(false)
-          setOrderhead(res.content.orderhead)
-          setDataTotal(res.content.dataTotal)
-          setLoad(false)
-        }
-        if (res.fun === 'fangganshaoClear') {
-          setLoad(false)
+    .off('fangganshaoDataTotal')
+    .on('fangganshaoDataTotal', data => {
+      if (data === 'err') {
+        alert('无法连接设备!')
+        setLoad(false)
+      } else {
+        const hex = data.split(' ')
+        setOrderhead(`${hex[1]}${hex[2]}${hex[3]}${hex[4]}`)
+        setDataTotal(parseInt(`${hex[13]}${hex[14]}`, 16))
+        setLoad(false)
+      }
+    })
+    .off('fangganshaoReadData')
+    .on('fangganshaoReadData', data => {
+      if (data === 'err') {
+        alert('无法连接设备!')
+        setLoad(false)
+      } else {
+        if (inx !== -1 ) {
+          const content = commonUtil.fgsdata(data.split(' '))
+          setList(p => [...p, content.data])
+          setHexList(p => [...p, content.hex])
+          setLoadText(d => `读取中(${content.inx+1}/${dataTotal})...`)
+          setInx(content.inx+1)
         }
       }
-
-      if (load && res.status === 'run') {
-        if (res.fun === 'fangganshaoReadData') {
-          if (res.content.data !== -1) {
-            setList(p => [...p, res.content.data])
-            setHexList(p => [...p, res.content.hex])
-          }
-          setLoadText(d => `读取中(${res.content.inx + 1}/${dataTotal})...`)
-          setInx(res.content.inx + 1)
-        }
-      }
-
-      if (load && res.status === 'err') {
-        window.alert('无法连接设备，请重新连接')
-        window.location = '#/防干烧/设备列表'
+    })
+    .off('fangganshaoClear')
+    .on('fangganshaoClear', data => {
+      if (data === 'err') {
+        alert('清除待发数据失败!')
+        setLoad(false)
+      } else {
+        setLoad(false)
       }
     })
 
   React.useEffect(() => {
     if (props.match.params.comName) {
-      setLoad(p => true)
-      setLoadText(p => '读取设备中...')
-      socket.emit('command', JSON.stringify({
-        fun: 'fangganshaoDataTotal',
-        param: {
-          type: 'teapot',
-          comName: decodeURIComponent(props.match.params.comName)
-        }
-      }))
+      setLoad(true)
+      setLoadText('读取设备中...')
+      socket.emit('fangganshaoDataTotal', {
+        comName: decodeURIComponent(props.match.params.comName),
+        hex: `7E05F5E0FF0AB1${moment().format('YYMMDDHHmm')}01000000`,
+        len: 32
+      })
     }
   }, [props.match.params.comName])
 
 
   React.useEffect(() => {
     if (inx !== -1 && inx < dataTotal) {
-      socket.emit('command', JSON.stringify({
-        fun: 'fangganshaoReadData',
-        param: {
-          type: 'teapot',
-          comName: decodeURIComponent(props.match.params.comName),
-          orderhead: orderhead,
-          inx: inx
-        }
-      }))
+      let hexInx = inx.toString(16)
+      const end = 4 - hexInx.length
+      for (let i = 0; i < end; i++) {
+        hexInx = '0' + hexInx
+      }
+      socket.emit('fangganshaoReadData', {
+        comName: decodeURIComponent(props.match.params.comName),
+        hex: `7E${orderhead}0A52${hexInx}${moment().format('YYMMDDHHmmss')}00`
+      })
     } else {
       if (dataTotal !== -1) {
         setInx(-1)
@@ -89,7 +94,7 @@ const Upload = props => {
 
 
   const getData = () => {
-    setLoad(d => true)
+    setLoad(true)
     setInx(0)
     setHexList([])
     setList([])
@@ -97,7 +102,7 @@ const Upload = props => {
 
   const upload = () => {
     const loop = (inx) => {
-      fetch(`${window.config.service_url}/api/fangganshao/`, {
+      fetch(`${config.service_url}/api/fangganshao/`, {
         method: 'post',
         headers: {
           'content-type': 'application/json'
@@ -135,13 +140,11 @@ const Upload = props => {
 
 
   const clearEquipment = () => {
-    socket.emit('command', JSON.stringify({
-      fun: 'fangganshaoClear',
-      param: {
-        type: 'teapot',
-        comName: props.match.params.comName
-      }
-    }))
+    socket.emit('fangganshaoClear', {
+      comName: props.match.params.comName,
+      hex: '7E05F5E0FF0A54000000000000000000',
+      len: 32
+    })
   }
 
 
@@ -196,7 +199,7 @@ const Upload = props => {
                 {
                   list && list.map((item, inx) => (
                     <tr key={inx}>
-                      <td>{item.inx}</td>
+                      <td>{item.inx+1}</td>
                       <td>{item.equipment_id}</td>
                       <td>{item.test_date} {item.test_time}</td>
                       <td>{item.action_status}</td>

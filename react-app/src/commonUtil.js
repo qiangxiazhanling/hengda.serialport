@@ -261,6 +261,44 @@ const commonUtil = {
         datime: moment().format('YYYY-MM-DD HH:mm:ss')
       }
     }
+  },
+  fgsdata: (hex) => {
+    const data = {}
+    data['inx'] = parseInt(`${hex[7]}${hex[8]}`, 16)
+    data['test_date'] = moment(
+      `${hex[9]}${hex[10]}${hex[11]}`, 'YYMMDD'
+    ).format('YYYY-MM-DD')
+    data['test_time'] = `${hex[12]}:${hex[13]}:${hex[14]}`
+    data['train_num'] = hex.slice(15, 22).map(item => String.fromCharCode(parseInt(item, 16))).join('')
+    data['staff'] = iconv.decode(Buffer.from(hex.slice(23, 30).join(''), 'hex'), 'GB18030').trim()
+    data['team'] = iconv.decode(Buffer.from(hex.slice(31, 38).join(''), 'hex'), 'GB18030').trim()
+    data['teapot_type'] = iconv.decode(Buffer.from(hex.slice(39, 48).join(''), 'hex'), 'GB18030').trim()
+    data['max_temp'] = parseInt(hex[49], 16)
+    data['move_temp'] = parseInt(hex[50], 16)
+    data['action_status'] = (() => {
+      if (hex[51] === '01') {
+        return '有动作'
+      } else if (hex[51] === '02') {
+        return '无动作'
+      } else {
+        return '未知'
+      }
+    })()
+
+    data['equipment_id'] = parseInt(hex.slice(69, 73).join(''), 16) + ''
+    if (isNaN(data['equipment_id']) || data['equipment_id'] === 'NaN') {
+      return {
+        hex: -1,
+        data: -1,
+        inx: data.inx
+      }
+    } else {
+      return {
+        hex: hex.join(''),
+        data: data,
+        inx: data.inx
+      }
+    }
   }
 }
 
