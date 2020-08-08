@@ -1,15 +1,4 @@
 {
-  "service_url": "http://39.101.201.108:9500",
-  "wifi_name": "HDJT",
-  "wifi_pwd": "HD@84865243",
-  "insulation_tcp": {
-    "ip": "39.104.96.32",
-    "port": "5555"
-  },
-  "teapot_tcp": {
-    "ip": "39.104.96.32",
-    "port": "8899"
-  },
   "order": {
     "insulation": {
       "header": "7e",

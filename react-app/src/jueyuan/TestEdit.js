@@ -24,7 +24,7 @@ const TestEdit = props => {
     .on('jueyuanId4', data => {
       setLoad(false)
       if (data === 'err') {
-        alert('连接失败!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         const hex = data.split(' ')
         setId4([hex[1], hex[2], hex[3], hex[4]])
@@ -35,7 +35,7 @@ const TestEdit = props => {
     .on('initConfig1', data => {
       if (data === 'err') {
         setLoad(false)
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         socket.emit('initConfig2', {
           hex: '7E05F5E0FF06AC007E7E0000',
@@ -48,7 +48,7 @@ const TestEdit = props => {
     .on('initConfig2', data => {
       setLoad(false)
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         alert('操作成功')
       }
@@ -57,7 +57,7 @@ const TestEdit = props => {
     .on('saveJueyuanConfig', data => {
       setLoad(false)
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         alert('操作成功')
       }

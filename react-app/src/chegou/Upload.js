@@ -19,11 +19,11 @@ const Upload = () => {
         return
       }
       setUpInx(inx)
-      fetch(`${config.service_url}/api/chegou/equpment/check/${list[inx].device_id.replace(/:/g, '|')}/`)
+      fetch(`${window.SEVER_PATH}/api/chegou/equpment/check/${list[inx].device_id.replace(/:/g, '|')}/`)
         .then(response => response.json())
         .then(res => {
           if (res.content) {
-            fetch(`${config.service_url}/api/chegou/`, {
+            fetch(`${window.SEVER_PATH}/api/chegou/`, {
               method: 'post',
               headers: {
                 'content-type': 'application/json'

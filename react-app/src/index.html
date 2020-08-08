@@ -4,17 +4,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+  <link rel="shortcut icon" href="./favicon.ico">
   <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="./style.css">
 
   <title>恒达交通</title>
 </head>
+<script>
+  window.WS_PORT= '47815'
+  window.SEVER_PATH = 'http://39.101.201.108:9500'
+  window.DEFAULT_WIFI = {
+    name: 'HDJT',
+    pass: 'HD@84865243'
+  }
+  window.DEFAULT_TCP = {
+    fgs: {
+      ip: '39.101.201.108',
+      port: '5555'
+    },
+    jyb: {
+      ip: '39.101.201.108',
+      port: '8899'
+    }
+  }
+</script>
 
 <body>
   <div id="app"></div>
 </body>
 
 <script src="./index.js"></script>
+
 </html>

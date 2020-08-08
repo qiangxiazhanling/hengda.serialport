@@ -24,47 +24,49 @@ const Edit = props => {
     .off('fangganshaoId4')
     .on('fangganshaoId4', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         const hex = data.split(' ')
         const id = parseInt(`0x${hex[1]}${hex[2]}${hex[3]}${hex[4]}`)
         setOrderhead(`${hex[1]}${hex[2]}${hex[3]}${hex[4]}`)
         setEquipmentId(id)
-        document.getElementById('equipmentId').value = id
-        setLoadText('正在获取服务器数据(请勿操作页面)...')
-        fetch(`${config.service_url}/api/common/dept/`)
-          .then(res => res.json())
-          .then(res => {
-            if (res.content) {
-              setDept(res.content)
-              setServerFlg(true)
-              fetch(`${config.service_url}/api/fangganshao/equipment/sn/${id}`)
-                .then(res => res.json())
-                .then(res => {
-                  setLoad(false)
-                  if (res.content) {
-                    document.getElementById('dept').value = res.content.dept_id
-                  }
-                })
-                .catch(err => setLoad(false))
-            } else {
+        if (document.getElementById('equipmentId')) {
+          document.getElementById('equipmentId').value = id
+          setLoadText('正在获取服务器数据(请勿操作页面)...')
+          fetch(`${window.SEVER_PATH}/api/common/dept/`)
+            .then(res => res.json())
+            .then(res => {
+              if (res.content) {
+                setDept(res.content)
+                setServerFlg(true)
+                fetch(`${window.SEVER_PATH}/api/fangganshao/equipment/sn/${id}`)
+                  .then(res => res.json())
+                  .then(res => {
+                    setLoad(false)
+                    if (res.content) {
+                      document.getElementById('dept').value = res.content.dept_id
+                    }
+                  })
+                  .catch(err => setLoad(false))
+              } else {
+                setServerFlg(false)
+                window.alert('无法连接服务器!\n您的设置将无法同步到服务器\n请在设置后联系管理员手动录入设备信息')
+                setLoad(false)
+              }
+            })
+            .catch(err => {
               setServerFlg(false)
-              window.alert('无法连接服务器!\n您的设置将无法同步到服务器\n请在设置后联系管理员手动录入设备信息')
               setLoad(false)
-            }
-          })
-          .catch(err => {
-            setServerFlg(false)
-            setLoad(false)
-            window.alert('无法连接服务器!\n您的设置将无法同步到服务器\n请在设置后联系管理员手动录入设备信息')
-          })
+              window.alert('无法连接服务器!\n您的设置将无法同步到服务器\n请在设置后联系管理员手动录入设备信息')
+            })
+        }
       }
     })
     .off('fangganshaoWriteId')
     .on('fangganshaoWriteId', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         alert('操作成功!')
@@ -74,7 +76,7 @@ const Edit = props => {
     .off('fangganshaoWifi')
     .on('fangganshaoWifi', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         alert('操作成功!')
@@ -108,16 +110,22 @@ const Edit = props => {
         len: 32
       })
     }
-    const new_sn = document.getElementById('equipmentId').value 
+    const new_sn = document.getElementById('equipmentId').value
+    const dept_id = document.getElementById('dept').value
     if (serverFlg) {
-      fetch(`${config.service_url}/api/fangganshao/equipment/sn/${equipmentId}`, {
+      if (dept_id === '') {
+        alert('请选择所属车间')
+        setLoad(false)
+        return
+      }
+      fetch(`${window.SEVER_PATH}/api/fangganshao/equipment/sn/${equipmentId}`, {
         method: 'put',
         headers: {
           'content-type': 'application/json'
         },
         body: JSON.stringify({
           new_sn: new_sn,
-          dept_id: document.getElementById('dept').value
+          dept_id: dept_id
         })
       })
         .then(res => res.json())
@@ -222,7 +230,7 @@ const Edit = props => {
                   id="wifi_name"
                   type="text"
                   className="form-control"
-                  defaultValue={config.wifi_name} />
+                  defaultValue={window.DEFAULT_WIFI.name} />
                 <div className="input-group-prepend">
                   <span className="input-group-text">密码:</span>
                 </div>
@@ -230,7 +238,7 @@ const Edit = props => {
                   id="wifi_password"
                   type="password"
                   className="form-control"
-                  defaultValue={config.wifi_pwd} />
+                  defaultValue={window.DEFAULT_WIFI.pass} />
               </div>
             </div>
           </div>
@@ -248,7 +256,7 @@ const Edit = props => {
                   type="text"
                   style={{ width: '50%' }}
                   className="form-control col-md-10"
-                  defaultValue={config.teapot_tcp.ip} />
+                  defaultValue={window.DEFAULT_TCP.fgs.ip} />
                 <div className="input-group-prepend">
                   <span className="input-group-text">端口:</span>
                 </div>
@@ -257,7 +265,7 @@ const Edit = props => {
                   type="text"
                   className="form-control"
                   disabled="disabled"
-                  defaultValue={'8899'} />
+                  defaultValue={window.DEFAULT_TCP.fgs.port} />
               </div>
             </div>
           </div>

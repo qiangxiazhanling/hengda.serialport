@@ -26,7 +26,7 @@ const Upload = props => {
     .off('fangganshaoDataTotal')
     .on('fangganshaoDataTotal', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         const hex = data.split(' ')
@@ -38,7 +38,7 @@ const Upload = props => {
     .off('fangganshaoReadData')
     .on('fangganshaoReadData', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         if (inx !== -1 ) {
@@ -102,7 +102,7 @@ const Upload = props => {
 
   const upload = () => {
     const loop = (inx) => {
-      fetch(`${config.service_url}/api/fangganshao/`, {
+      fetch(`${window.SEVER_PATH}/api/fangganshao/`, {
         method: 'post',
         headers: {
           'content-type': 'application/json'

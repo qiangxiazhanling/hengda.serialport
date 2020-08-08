@@ -55,7 +55,7 @@ const Setting = props => {
                       <input
                         id="service_url"
                         type="text"
-                        value={config.service_url}
+                        value={window.SEVER_PATH}
                         onChange={_onChange}
                         className="form-control form-control-sm" />
                       <small className="form-text text-success">

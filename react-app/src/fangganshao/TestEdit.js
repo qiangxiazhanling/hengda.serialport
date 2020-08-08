@@ -21,7 +21,7 @@ const TestEdit = props => {
     .off('fangganshaoId4')
     .on('fangganshaoId4', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         const hex = data.split(' ')
@@ -37,7 +37,7 @@ const TestEdit = props => {
     .off('fangganshaoReadTestEdit')
     .on('fangganshaoReadTestEdit', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         const hex = data.split(' ')
@@ -61,7 +61,7 @@ const TestEdit = props => {
     .off('fangganshaoWriteTestEdit')
     .on('fangganshaoWriteTestEdit', data => {
       if (data === 'err') {
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
         setLoad(false)
       } else {
         setLoad(false)

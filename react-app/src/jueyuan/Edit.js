@@ -24,21 +24,23 @@ const Edit = props => {
     .off('jueyuanId4')
     .on('jueyuanId4', data => {
       if (data === 'err') {
-        alert('连接失败!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         const hex = data.split(' ')
         const id = parseInt(`0x${hex[1]}${hex[2]}${hex[3]}${hex[4]}`)
         setDeviceId(id)
-        document.getElementById('deviceId').value = id
-        setId4([hex[1], hex[2], hex[3], hex[4]])
-        setLoad(false)
-        fetch(`${config.service_url}/api/jueyuan/equipment/sn/${id}`)
-          .then(res => res.json())
-          .then(res => {
-            if (res.content) {
-              document.getElementById('dept').value = res.content.dept_id
-            }
-          })
+        if (document.getElementById('deviceId')) {
+          document.getElementById('deviceId').value = id
+          setId4([hex[1], hex[2], hex[3], hex[4]])
+          setLoad(false)
+          fetch(`${window.SEVER_PATH}/api/jueyuan/equipment/sn/${id}`)
+            .then(res => res.json())
+            .then(res => {
+              if (res.content) {
+                document.getElementById('dept').value = res.content.dept_id
+              }
+            })
+        }
       }
     })
 
@@ -46,7 +48,7 @@ const Edit = props => {
     .off('writeJueyuanId')
     .on('writeJueyuanId', data => {
       if (data === 'err') {
-        alert('连接失败!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         alert('操作成功')
       }
@@ -57,7 +59,7 @@ const Edit = props => {
     .off('writeJueyuanWifi')
     .on('writeJueyuanWifi', data => {
       if (data === 'err') {
-        alert('连接失败!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         alert('操作成功')
       }
@@ -69,7 +71,7 @@ const Edit = props => {
       setServerFlg(false)
       window.alert(`无法连接服务器!\n您的设置将无法同步到服务器\n请在设置后联系管理员手动录入设备信息`)
     }
-    fetch(`${config.service_url}/api/common/dept/`)
+    fetch(`${window.SEVER_PATH}/api/common/dept/`)
       .then(res => res.json())
       .then(res => {
         if (res.content) {
@@ -106,14 +108,20 @@ const Edit = props => {
     setLoad(true)
     setLoadText('正在写入设备编号(请勿操作页面)...')
     if (serverFlg) {
-      fetch(`${config.service_url}/api/jueyuan/equipment/sn/${deviceId}`, {
+      const dept_id = document.getElementById('dept').value
+      if (dept_id === '') {
+        alert('请选择所属车间')
+        setLoad(false)
+        return
+      }
+      fetch(`${window.SEVER_PATH}/api/jueyuan/equipment/sn/${deviceId}`, {
         method: 'put',
         headers: {
           'content-type': 'application/json'
         },
         body: JSON.stringify({
           new_sn: document.getElementById('deviceId').value,
-          dept_id: document.getElementById('dept').value
+          dept_id: dept_id
         })
       })
         .then(res => res.json())
@@ -139,7 +147,7 @@ const Edit = props => {
       password: document.getElementById('wifi_password').value,
       ip_addr: document.getElementById('service_path').value,
       port: document.getElementById('service_port').value
-    } 
+    }
     let t = []
     t.push(config.order['insulation'].header)
     id4.forEach(it => t.push(it))
@@ -158,7 +166,7 @@ const Edit = props => {
     t.push(commonUtil.hexFillZero(t1.length.toString(16)))
     console.info(t.concat(t1).join(''))
     socket.emit('writeJueyuanWifi', {
-      hex:  t.concat(t1).join(''),
+      hex: t.concat(t1).join(''),
       comName: decodeURIComponent(props.match.params.comName),
       len: 64
     })
@@ -214,7 +222,7 @@ const Edit = props => {
                   id="wifi_name"
                   type="text"
                   className="form-control"
-                  defaultValue={config.wifi_name} />
+                  defaultValue={window.DEFAULT_WIFI.name} />
                 <div className="input-group-prepend">
                   <span className="input-group-text">密码:</span>
                 </div>
@@ -222,7 +230,7 @@ const Edit = props => {
                   id="wifi_password"
                   type="password"
                   className="form-control"
-                  defaultValue={config.wifi_pwd} />
+                  defaultValue={window.DEFAULT_WIFI.pass} />
               </div>
             </div>
           </div>
@@ -240,7 +248,7 @@ const Edit = props => {
                   type="text"
                   style={{ width: '50%' }}
                   className="form-control col-md-10"
-                  defaultValue={config.insulation_tcp.ip} />
+                  defaultValue={window.DEFAULT_TCP.fgs.ip} />
                 <div className="input-group-prepend">
                   <span className="input-group-text">端口:</span>
                 </div>
@@ -248,7 +256,7 @@ const Edit = props => {
                   id="service_port"
                   type="text"
                   className="form-control"
-                  defaultValue={config.insulation_tcp.port} />
+                  defaultValue={window.DEFAULT_TCP.fgs.ip.port} />
               </div>
             </div>
           </div>

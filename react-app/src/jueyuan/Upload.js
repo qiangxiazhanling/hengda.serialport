@@ -9,7 +9,7 @@ import commonUtil from '../commonUtil'
 
 
 const insertOriginal = body => new Promise((resolve, reject) => {
-  fetch(`${config.service_url}/api/jueyuan/original/`, {
+  fetch(`${window.SEVER_PATH}/api/jueyuan/original/`, {
     method: 'post',
     headers: {
       'content-type': 'application/json'
@@ -22,7 +22,7 @@ const insertOriginal = body => new Promise((resolve, reject) => {
 })
 
 const insulationUpload = body => new Promise((resolve, reject) => {
-  fetch(`${config.service_url}/api/jueyuan/mod5/`, {
+  fetch(`${window.SEVER_PATH}/api/jueyuan/mod5/`, {
     method: 'post',
     headers: {
       'content-type': 'application/json'
@@ -60,7 +60,7 @@ const Upload = props => {
     .on('jueyuanReadData', data => {
       if (data === 'err') {
         setLoad(false)
-        alert('无法连接设备!')
+        alert('设备拒绝访问,请检查设备连接!')
       } else {
         const attribute = commonUtil.juyuandata(data).attribute
         if (attribute.deviceId === 99999999 && attribute.personnel === '试验人员' && 
