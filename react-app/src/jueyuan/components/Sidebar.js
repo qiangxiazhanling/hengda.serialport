@@ -6,6 +6,16 @@ const Sidebar = props => (
       <ul className="nav flex-column mt-4">
         <li className="nav-menu">
           <a
+            href={`#绝缘/数据上传/${encodeURIComponent(props.comName)}/`}
+            onClick={props.close}
+            className={`nav-link ${props.category==='upload'?'nav-menu-active':'nav-menu-link'}`}
+          >
+            <i className="fa fa-w fa-cloud-upload" aria-hidden="true"></i>
+            数据上传
+          </a>
+        </li>
+        <li className="nav-menu">
+          <a
             href={`#绝缘/设备设置/${encodeURIComponent(props.comName)}/`}
             onClick={props.close}
             className={`nav-link ${props.category==='edit'?'nav-menu-active':'nav-menu-link'}`}
@@ -14,7 +24,7 @@ const Sidebar = props => (
             设备设置
           </a>
         </li >
-        <li className="nav-menu">
+        <li className="nav-menu border-bottom">
           <a
             href={`#绝缘/测试配置/${encodeURIComponent(props.comName)}/`}
             onClick={props.close}
@@ -22,16 +32,6 @@ const Sidebar = props => (
           >
             <i className="fa fa-w fa-subway" aria-hidden="true"></i>
             测试配置
-          </a>
-        </li>
-        <li className="nav-menu border-bottom">
-          <a
-            href={`#绝缘/数据上传/${encodeURIComponent(props.comName)}/`}
-            onClick={props.close}
-            className={`nav-link ${props.category==='upload'?'nav-menu-active':'nav-menu-link'}`}
-          >
-            <i className="fa fa-w fa-cloud-upload" aria-hidden="true"></i>
-            数据上传
           </a>
         </li>
         <li>

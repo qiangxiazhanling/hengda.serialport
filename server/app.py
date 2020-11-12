@@ -350,5 +350,5 @@ def disconnect():
   print('disconnect')
 
 path = sys.path[0].replace('\\','/')+'/browser/portable.exe --incognito --disable-web-security --app=%s --app-auto-launched'
-webbrowser.get(path).open("http://localhost:5000/")
+webbrowser.get(path).open("http://localhost:47815/")
 print('恒达设备助手服务已启动')
