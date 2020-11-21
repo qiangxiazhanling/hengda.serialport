@@ -154,7 +154,7 @@ const Upload = (props) => {
 				alert("清除数据失败");
 			} else {
 				setLoad(false);
-				alert("待发数据已清除");
+				alert("数据上传成功,待发数据已清除");
 				socket.emit("jueyuanId4", {
 					hex: config.order["insulation"].setup_time.replace(
 						/{date}/,
@@ -353,7 +353,7 @@ const Upload = (props) => {
 															className='btn btn-info'
 															onClick={readData}
 														>
-															读取代发数据
+															读取待发数据
 														</button>
 														<button
 															disabled={load}
